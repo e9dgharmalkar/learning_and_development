@@ -1,4 +1,17 @@
 from django.db import models
+from collections import Counter              
+STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('In Review', 'In Review'),
+        ('Completed', 'Completed'),
+        ('On Hold', 'On Hold'),]
+class List(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    
 class Task(models.Model):
     title = models.CharField(max_length=200)
     completed = models.BooleanField(default=False)
@@ -12,37 +25,26 @@ class Task(models.Model):
     @property
     def status(self):
         statuses = [subtask.status for subtask in self.subtasks.all()]
-
-        if all(status == 'Pending' for status in statuses):
+        if not statuses:
             return 'Pending'
-        elif any(status in ['In Progress', 'In Review', 'Completed'] for status in statuses):
-            return 'In Progress'
-        elif all(status == 'Completed' for status in statuses):
-            return 'Completed'
-        elif all(status == 'On Hold' for status in statuses):
-            return 'On Hold'
-        else:
-            return 'Mixed'
+        Counter = Counter(statuses)
+        if len(Counter) == 1:
+            return statuses[0]
+        return "In Progress" 
 
-class List(models.Model):
-    name = models.CharField(max_length=255)
+        
+    class SubTask(models.Model):
+       
+    
 
-    def __str__(self):
-        return self.name
-class SubTask(models.Model):
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('In Progress', 'In Progress'),
-        ('In Review', 'In Review'),
-        ('Completed', 'Completed'),
-        ('On Hold', 'On Hold'),
-    ]
-
-    name = models.CharField(max_length=255)
-    assignee = models.CharField(max_length=255)
+     name = models.CharField(max_length=255)
+    assignee = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
+    task = models.ForeignKey('Task', on_delete=models.CASCADE, related_name='subtasks')
 
     def __str__(self):
-        return self.name
+        return self.name   
+
+
+
 

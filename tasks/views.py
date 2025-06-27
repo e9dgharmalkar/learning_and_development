@@ -30,6 +30,8 @@ class DashboardView(TemplateView):
             }
         )
 
+        print(context)
+
         return context
 
     def get_tasks(self, lists):
@@ -37,17 +39,15 @@ class DashboardView(TemplateView):
             return (List.objects.none(), Task.objects.none())
 
         list_id = self.request.GET.get("list_id", lists.first().id)
-        return (
-            List.objects.get(id=list_id),
-            Task.objects.filter(list__id=list_id).order_by("-created_at"),
-        )
+        return (List.objects.get(id=list_id), Task.objects.filter(list__id=list_id))
 
     def get_selected_task_details(self, tasks):
         if not tasks:
             return (Task.objects.none(), SubTask.objects.none())
 
         task_id = self.request.GET.get("task_id", tasks.first().id)
-        return (
-            Task.objects.get(id=task_id),
-            SubTask.objects.filter(task__id=task_id).order_by("-created_at"),
-        )
+        print(f"Selected task ID: {task_id}")  # Debugging line to check task_id
+
+        print(SubTask.objects.filter(task__id=task_id))
+
+        return (Task.objects.get(id=task_id), SubTask.objects.filter(task__id=task_id))

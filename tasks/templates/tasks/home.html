@@ -2,58 +2,136 @@
 
 {% block content %}
 <style>
-    .accordion-button::after {
-        display: none; /* Removes the down arrow */
+    /* Sidebar Dropdown Enhancements */
+    .dropdown-menu .dropdown-item:hover {
+        background-color: #f3f6ff;
+        border-radius: 4px;
     }
 
-    .scrollable-lists {
-        max-height: 70vh;
+    .accordion-item {
+        margin-bottom: 0.3rem;
+    }
+
+    .accordion-button {
+        padding: 0.4rem 0.75rem;
+        font-size: 1rem;
+    }
+
+    .accordion-button:not(.collapsed) {
+        box-shadow: none;
+    }
+
+    .card {
+        background-color: #f9f9fc;
+        border-radius: 0.5rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    /* Subtask List Item */
+    .small-subtask-list .list-group-item {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.75rem;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        background-clip: padding-box;
+    }
+
+    /* Hover effect for subtasks */
+    .small-subtask-list .list-group-item:hover {
+        background-color: #eef5ff;
+        transform: scale(1.01);
+    }
+
+    /* Subtask Status Border + Background */
+    .border-completed {
+        border: 2px solid #a0d8b3 !important;
+        background-color: #eafaf0;
+    }
+
+    .border-inprogress {
+        border: 2px solid #f7d192 !important;
+        background-color: #fff9ec;
+    }
+
+    .border-onhold {
+        border: 2px solid #d1d5db !important;
+        background-color: #f3f4f6;
+    }
+
+    .border-pending {
+        border: 2px solid #f5a3a3 !important;
+        background-color: #fff1f1;
+    }
+
+    .subtask-name {
+        margin-left: 0.5rem;
+    }
+
+    /* Subtask Badge Colors */
+    .badge-soft-success {
+        background-color: #d4f4df;
+        color: #155724;
+    }
+
+    .badge-soft-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-soft-secondary {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+
+    .badge-soft-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Sidebar Scroll */
+    .dropdown-menu {
+        max-height: 200px;
         overflow-y: auto;
-    }
-
-    .list-group-item {
-        background-color: transparent;
-    }
-
-    .accordion-item,
-    .accordion-button,
-    .list-group-item {
-        border: none !important; /* Remove all borders */
     }
 </style>
 
 <div class="container-fluid">
     <div class="row" style="height: 100vh;">
 
-    <!-- Sidebar -->
-<div class="col-md-2 bg-light d-flex flex-column" style="height: 100vh;">
-    <h5 class="mt-3 px-2">Menu</h5>
-    <hr>
-    <h6 class="px-2">Lists</h6>
+        <!-- Sidebar -->
+        <div class="col-md-2 bg-light d-flex flex-column shadow-sm" style="height: 100vh;">
+            <h5 class="mt-3 px-3 mb-2"><i class="bi bi-menu-button-wide"></i> Menu</h5>
+            <hr class="my-2">
 
-    <!-- Scrollable list container -->
-    <div style="overflow-y: auto; max-height:6.5rem;">
-        <ul class="list-group list-group-flush">
-            {% for list in lists %}
-                <li class="list-group-item py-1 px-2">
-                    <a href="?list_id={{ list.id }}" style="text-decoration: none; color: inherit;">
-                        {{ list.name }}
-                    </a>
-                </li>
-            {% empty %}
-                <li class="list-group-item p-1">No lists yet.</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Add List Button aligned left below the list -->
-    <div class="px-2 mt-2">
-        <a class="btn btn-sm btn-outline-dark" href="#" style="border: none;">
-            <i class="bi bi-plus"></i> Add List
-        </a>
-    </div>
-</div>
-
+            <!-- Lists Dropdown -->
+            <div class="dropdown px-3">
+                <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-folder2-open"></i> Lists
+                </button>
+                <ul class="dropdown-menu w-100">
+                    {% for list in lists %}
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="?list_id={{ list.id }}">
+                                <i class="bi bi-list-task me-2 text-muted"></i> {{ list.name }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li><span class="dropdown-item text-muted">No lists yet.</span></li>
+                    {% endfor %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-primary" href="#">
+                            <i class="bi bi-plus-circle me-2"></i> Add List
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <div class="col-md-10 pt-3" style="overflow-y: auto;">
@@ -61,31 +139,40 @@
                 <h4>{{ selected_list.name }}</h4>
                 <div class="accordion" id="taskAccordion">
                     {% for task in tasks %}
-                        <div class="accordion-item">
+                        <div class="accordion-item border-0">
                             <h2 class="accordion-header" id="heading{{ task.id }}">
                                 <button class="accordion-button collapsed bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ task.id }}" aria-expanded="false" aria-controls="collapse{{ task.id }}">
                                     {{ task.title }}
                                 </button>
                             </h2>
                             <div id="collapse{{ task.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ task.id }}" data-bs-parent="#taskAccordion">
-                                <div class="accordion-body py-2 px-3">
-                                    <ul class="list-group list-group-flush">
-                                        {% for subtask in task.subtasks.all %}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <span class="text-truncate">{{ subtask.name }}</span>
-                                                <span class="badge 
-                                                    {% if subtask.status == 'Completed' %} bg-success
-                                                    {% elif subtask.status == 'In Progress' %} bg-warning text-dark
-                                                    {% elif subtask.status == 'On Hold' %} bg-secondary
-                                                    {% else %} bg-danger
-                                                    {% endif %}">
-                                                    {{ subtask.status }}
-                                                </span>
-                                            </li>
-                                        {% empty %}
-                                            <li class="list-group-item px-0">No subtasks.</li>
-                                        {% endfor %}
-                                    </ul>
+                                <div class="accordion-body p-0">
+                                    <div class="card shadow-sm border-0 mx-2 my-2">
+                                        <div class="card-body p-2">
+                                            <ul class="list-group list-group-flush small-subtask-list">
+                                                {% for subtask in task.subtasks.all %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center 
+                                                        {% if subtask.status == 'Completed' %} border-completed
+                                                        {% elif subtask.status == 'In Progress' %} border-inprogress
+                                                        {% elif subtask.status == 'On Hold' %} border-onhold
+                                                        {% else %} border-pending
+                                                        {% endif %}">
+                                                        <span class="subtask-name">{{ subtask.name }}</span>
+                                                        <span class="badge 
+                                                            {% if subtask.status == 'Completed' %} badge-soft-success
+                                                            {% elif subtask.status == 'In Progress' %} badge-soft-warning
+                                                            {% elif subtask.status == 'On Hold' %} badge-soft-secondary
+                                                            {% else %} badge-soft-danger
+                                                            {% endif %}">
+                                                            {{ subtask.status }}
+                                                        </span>
+                                                    </li>
+                                                {% empty %}
+                                                    <li class="list-group-item">No subtasks.</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

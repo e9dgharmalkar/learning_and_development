@@ -127,6 +127,18 @@
         overflow-y: auto;
     }
 
+    .dropdown-item .badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    .dropdown-item.active {
+        background-color: #eef6fb;
+        font-weight: 500;
+        border-left: 3px solid #90c6ea;
+        color: #0d6efd !important;
+    }
+
     .dropdown-menu .dropdown-item {
         color: inherit;
     }
@@ -149,7 +161,7 @@
 </style>
 
 <div class="container-fluid">
-    <div class="row" style="height: 100vh;">
+    <div class="row g-0" style="height: 100vh;">
 
         <!-- Sidebar -->
         <div class="col-md-2 d-flex flex-column shadow-sm px-3 py-3" style="height: 100vh; background-color: inherit;">
@@ -167,8 +179,12 @@
                     <div style="max-height: 200px; overflow-y: auto;">
                         {% for list in lists %}
                             <li>
-                                <a class="dropdown-item d-flex align-items-center" href="?list_id={{ list.id }}">
-                                    <i class="bi bi-list-task me-2 text-muted"></i> {{ list.name }}
+                                <a class="dropdown-item d-flex justify-content-between align-items-center px-2 {% if selected_list.id == list.id%}active{% endif %}" href="?list_id={{ list.id }}">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-list-task me-2 text-muted"></i>
+                                        <span>{{list.name}}</span>
+                                    </div>                                   
+                                    <span class="badge bg-secondary ms-2">{{ list.tasks.count}}</span>
                                 </a>
                              </li>
                         {% empty %}
